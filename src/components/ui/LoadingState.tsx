@@ -5,13 +5,24 @@ export interface LoadingStateProps {
   type?: "card" | "list" | "detail" | "avatar";
   count?: number;
   className?: string;
+  message?: string;
 }
 
 export const LoadingState: React.FC<LoadingStateProps> = ({
   type = "card",
   count = 3,
   className,
+  message,
 }) => {
+  if (message) {
+    return (
+      <div className={cn("flex flex-col items-center gap-3", className)}>
+        <div className="w-10 h-10 border-4 border-black border-t-neo-pink animate-spin" />
+        <p className="text-xs font-black uppercase tracking-wider text-black/60">{message}</p>
+      </div>
+    );
+  }
+
   const items = Array.from({ length: count });
 
   if (type === "card") {

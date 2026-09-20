@@ -165,7 +165,7 @@ export const MapView: React.FC<MapViewProps> = ({
             </h4>
 
             <p className="text-xs font-semibold text-black/70 line-clamp-2 mt-1">
-              {"description" in selectedPin ? selectedPin.description : selectedPin.tagline}
+              {"title" in selectedPin ? selectedPin.description : selectedPin.tagline}
             </p>
 
             <div className="flex items-center justify-between mt-3 pt-2 border-t-2 border-dashed border-black/20">
