@@ -40,9 +40,7 @@ export const Header: React.FC = () => {
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
         {/* Left: Brand Logo & Location Pill */}
         <div className="flex items-center gap-4">
-          <Link href="/">
-            <BrandLogo size="md" />
-          </Link>
+          <BrandLogo size="md" />
 
           {isAuthenticated && currentUser?.location_name && (
             <div className="hidden md:flex items-center gap-1.5 bg-neo-yellow/30 border-2 border-black px-2.5 py-1 text-xs font-black uppercase brutal-shadow-sm">
