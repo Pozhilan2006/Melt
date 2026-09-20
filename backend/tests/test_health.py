@@ -24,18 +24,15 @@ def test_user_creation_and_retrieval(client: TestClient):
     """Verify user registration and profile lookup."""
     user_payload = {
         "name": "Alex Sensei",
-        "username": "alex_sensei",
         "email": "alex@melt.app",
         "password": "SecurePassword123!",
-        "bio": "Weekend Striker",
-        "location_name": "Kompally, Hyderabad"
     }
 
     # Create user
-    res_create = client.post("/api/v1/users", json=user_payload)
+    res_create = client.post("/api/v1/auth/register", json=user_payload)
     assert res_create.status_code == 201
-    user_data = res_create.json()
-    assert user_data["username"] == "alex_sensei"
+    user_data = res_create.json()["user"]
+    assert "alexsensei" in user_data["username"]
     assert "password_hash" not in user_data
 
     # Fetch user profile
@@ -46,6 +43,15 @@ def test_user_creation_and_retrieval(client: TestClient):
 
 def test_community_creation_and_listing(client: TestClient):
     """Verify tribe creation and retrieval."""
+    register_response = client.post(
+        "/api/v1/auth/register",
+        json={
+            "name": "Community Creator",
+            "email": "community-creator@meelt.io",
+            "password": "securePass1",
+        },
+    )
+    token = register_response.json()["access_token"]
     comm_payload = {
         "name": "Hyd Football Turf Tribe ⚽",
         "tagline": "Weekend matches",
@@ -55,7 +61,11 @@ def test_community_creation_and_listing(client: TestClient):
         "visibility": "PUBLIC"
     }
 
-    res_create = client.post("/api/v1/communities", json=comm_payload)
+    res_create = client.post(
+        "/api/v1/communities",
+        json=comm_payload,
+        headers={"Authorization": f"Bearer {token}"},
+    )
     assert res_create.status_code == 201
     comm_data = res_create.json()
     assert comm_data["name"] == "Hyd Football Turf Tribe ⚽"

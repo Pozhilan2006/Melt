@@ -1,17 +1,31 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Tabs } from "@/components/ui/Tabs";
 import { Toast } from "@/components/ui/Toast";
+import { ApiError, communitiesApi } from "@/lib/api";
 import { Sparkles, CheckCircle2, Edit3, MapPin, Calendar, Users, Flame, ArrowRight, Wand2 } from "lucide-react";
 
 export default function CreatePage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("activity");
   const [showToast, setShowToast] = useState(false);
+  const [communityName, setCommunityName] = useState("");
+  const [communityDescription, setCommunityDescription] = useState("");
+  const [communityCategory, setCommunityCategory] = useState("Sports");
+  const [communityLocation, setCommunityLocation] = useState("Hyderabad");
+  const [communityVisibility, setCommunityVisibility] = useState<"PUBLIC" | "PRIVATE">("PUBLIC");
+  const [communityError, setCommunityError] = useState<string | null>(null);
+  const [isCreatingCommunity, setIsCreatingCommunity] = useState(false);
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("tab") === "community") {
+      setActiveTab("community");
+    }
+  }, []);
 
   // Natural Language AI Prompt
   const [naturalPrompt, setNaturalPrompt] = useState(
@@ -74,6 +88,30 @@ export default function CreatePage() {
     }, 1500);
   };
 
+  const handleCreateCommunity = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setCommunityError(null);
+    setIsCreatingCommunity(true);
+    try {
+      const community = await communitiesApi.create({
+        name: communityName.trim(),
+        description: communityDescription.trim(),
+        category: communityCategory,
+        location: communityLocation.trim(),
+        visibility: communityVisibility,
+      });
+      router.push(`/communities/${community.id}`);
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        router.push("/login?from=/create?tab=community");
+      } else {
+        setCommunityError(err instanceof ApiError ? err.message : "Unable to create your community.");
+      }
+    } finally {
+      setIsCreatingCommunity(false);
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Toast notification */}
@@ -112,7 +150,48 @@ export default function CreatePage() {
         variant="yellow"
       />
 
-      {/* Natural Language Prompt Input */}
+      {activeTab === "community" ? (
+        <form onSubmit={handleCreateCommunity} className="bg-white border-4 border-black p-6 brutal-shadow-xl space-y-5">
+          <div>
+            <h2 className="text-2xl font-black uppercase tracking-tight">START YOUR COMMUNITY TRIBE</h2>
+            <p className="text-xs font-bold text-black/60 mt-1">Create the place where your real-world people find each other.</p>
+          </div>
+
+          {communityError && <div className="bg-neo-pink/10 border-3 border-neo-pink p-3 text-xs font-black text-neo-pink uppercase">{communityError}</div>}
+
+          <label className="block">
+            <span className="block text-xs font-black uppercase mb-1.5">COMMUNITY NAME</span>
+            <Input value={communityName} onChange={(event) => setCommunityName(event.target.value)} required minLength={2} maxLength={120} placeholder="e.g. Kompally Football Crew" />
+          </label>
+          <label className="block">
+            <span className="block text-xs font-black uppercase mb-1.5">DESCRIPTION</span>
+            <textarea value={communityDescription} onChange={(event) => setCommunityDescription(event.target.value)} required maxLength={2000} rows={4} placeholder="What brings this tribe together?" className="w-full border-3 border-black px-4 py-3 font-semibold resize-none focus:outline-none focus:bg-neo-yellow/20" />
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <label className="block">
+              <span className="block text-xs font-black uppercase mb-1.5">CATEGORY</span>
+              <select value={communityCategory} onChange={(event) => setCommunityCategory(event.target.value)} className="w-full border-3 border-black px-4 py-3 font-bold bg-white focus:outline-none focus:bg-neo-yellow/20">
+                <option>Sports</option><option>Gaming</option><option>Tech</option><option>Outdoors</option><option>Creative</option><option>Social</option>
+              </select>
+            </label>
+            <label className="block">
+              <span className="block text-xs font-black uppercase mb-1.5">AREA / LOCATION</span>
+              <Input value={communityLocation} onChange={(event) => setCommunityLocation(event.target.value)} required maxLength={150} placeholder="e.g. Kompally, Hyderabad" />
+            </label>
+          </div>
+          <label className="block">
+            <span className="block text-xs font-black uppercase mb-1.5">VISIBILITY</span>
+            <select value={communityVisibility} onChange={(event) => setCommunityVisibility(event.target.value as "PUBLIC" | "PRIVATE")} className="w-full border-3 border-black px-4 py-3 font-bold bg-white focus:outline-none focus:bg-neo-cyan/20">
+              <option value="PUBLIC">PUBLIC - Anyone can discover and join</option>
+              <option value="PRIVATE">PRIVATE - Membership is restricted</option>
+            </select>
+          </label>
+          <Button type="submit" variant="pink" size="lg" disabled={isCreatingCommunity} leftIcon={<Users className="w-5 h-5" />}>
+            {isCreatingCommunity ? "CREATING TRIBE..." : "CREATE COMMUNITY ⚡"}
+          </Button>
+        </form>
+      ) : (
+      /* Natural Language Prompt Input */
       <div className="bg-white border-4 border-black p-6 brutal-shadow-xl space-y-4">
         <label className="block text-xs uppercase font-black text-black flex items-center justify-between">
           <span>NATURAL LANGUAGE CREATION INPUT</span>
@@ -258,6 +337,7 @@ export default function CreatePage() {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }

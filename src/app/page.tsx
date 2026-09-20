@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { SearchBar } from "@/components/ui/SearchBar";
@@ -8,13 +8,19 @@ import { ActivityCard } from "@/components/product/ActivityCard";
 import { CommunityCard } from "@/components/product/CommunityCard";
 import { Tag } from "@/components/ui/Tag";
 import { Badge } from "@/components/ui/Badge";
-import { MOCK_ACTIVITIES, MOCK_COMMUNITIES, MOCK_INTERESTS, MOCK_USERS } from "@/data/mockData";
+import { MOCK_ACTIVITIES, MOCK_INTERESTS, MOCK_USERS } from "@/data/mockData";
+import { ApiCommunity, communitiesApi } from "@/lib/api";
 import { Flame, Users, Sparkles, MapPin, ArrowRight, Zap, Users2, AlertTriangle, Compass } from "lucide-react";
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedInterest, setSelectedInterest] = useState("ALL");
+  const [communities, setCommunities] = useState<ApiCommunity[]>([]);
   const currentUser = MOCK_USERS[0]; // Pozhilan
+
+  useEffect(() => {
+    communitiesApi.list().then(setCommunities).catch(() => setCommunities([]));
+  }, []);
 
   // Filter urgent activities with open spots <= 3
   const urgentActivities = MOCK_ACTIVITIES.filter(
@@ -191,7 +197,7 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {MOCK_COMMUNITIES.map((comm) => (
+          {communities.map((comm) => (
             <CommunityCard key={comm.id} community={comm} />
           ))}
         </div>

@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Tabs } from "@/components/ui/Tabs";
-import { MOCK_ACTIVITIES, MOCK_COMMUNITIES } from "@/data/mockData";
+import { MOCK_ACTIVITIES } from "@/data/mockData";
+import { ApiCommunity, communitiesApi } from "@/lib/api";
 import { ActivityCard } from "@/components/product/ActivityCard";
 import { CommunityCard } from "@/components/product/CommunityCard";
 import { Zap, MapPin, Edit3 } from "lucide-react";
@@ -20,7 +21,11 @@ function ProfileContent() {
   // TODO Phase 5: fetch real user activities & communities
   const upcomingActivities = MOCK_ACTIVITIES.slice(0, 3);
   const pastActivities = [MOCK_ACTIVITIES[3], MOCK_ACTIVITIES[4]];
-  const userCommunities = MOCK_COMMUNITIES.slice(0, 2);
+  const [userCommunities, setUserCommunities] = useState<ApiCommunity[]>([]);
+
+  useEffect(() => {
+    communitiesApi.list().then(setUserCommunities).catch(() => setUserCommunities([]));
+  }, []);
 
   if (!currentUser) return null;
 

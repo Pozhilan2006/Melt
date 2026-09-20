@@ -147,6 +147,40 @@ export interface ApiInterest {
   badge_bg: string | null;
 }
 
+export interface ApiCommunityMember {
+  id: string;
+  name: string;
+  username: string;
+  profile_image: string | null;
+  role: "MEMBER" | "ORGANIZER" | "ADMIN";
+  joined_at: string;
+}
+
+export interface ApiMembership {
+  is_member: boolean;
+  role: "MEMBER" | "ORGANIZER" | "ADMIN" | null;
+}
+
+export interface ApiCommunity {
+  id: string;
+  name: string;
+  tagline: string | null;
+  description: string | null;
+  category: string;
+  location: string;
+  visibility: "PUBLIC" | "PRIVATE";
+  activity_status: string;
+  banner_bg: string | null;
+  anime_mascot: string | null;
+  is_verified: boolean;
+  created_by: string | null;
+  created_at: string;
+  lead_user: ApiUser | null;
+  member_count: number;
+  members: ApiCommunityMember[];
+  membership: ApiMembership | null;
+}
+
 export interface TokenResponse {
   access_token: string;
   token_type: string;
@@ -193,4 +227,39 @@ export const userApi = {
 export const interestsApi = {
   list: () =>
     apiFetch<ApiInterest[]>("/api/v1/interests", { authenticated: false }),
+};
+
+export interface CreateCommunityPayload {
+  name: string;
+  description: string;
+  category: string;
+  location: string;
+  visibility: "PUBLIC" | "PRIVATE";
+}
+
+export const communitiesApi = {
+  list: (params: { search?: string; category?: string } = {}) => {
+    const query = new URLSearchParams();
+    if (params.search) query.set("search", params.search);
+    if (params.category && params.category !== "ALL") query.set("category", params.category);
+    const suffix = query.toString() ? `?${query.toString()}` : "";
+    return apiFetch<ApiCommunity[]>(`/api/v1/communities${suffix}`);
+  },
+
+  get: (id: string) => apiFetch<ApiCommunity>(`/api/v1/communities/${id}`),
+
+  create: (payload: CreateCommunityPayload) =>
+    apiFetch<ApiCommunity>("/api/v1/communities", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  join: (id: string) =>
+    apiFetch<ApiCommunity>(`/api/v1/communities/${id}/join`, { method: "POST" }),
+
+  leave: (id: string) =>
+    apiFetch<ApiCommunity>(`/api/v1/communities/${id}/leave`, { method: "DELETE" }),
+
+  members: (id: string) =>
+    apiFetch<ApiCommunityMember[]>(`/api/v1/communities/${id}/members`),
 };

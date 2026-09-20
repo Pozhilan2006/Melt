@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { AIMessage } from "@/components/product/AIMessage";
 import { AIInput } from "@/components/product/AIInput";
 import { Tag } from "@/components/ui/Tag";
-import { MOCK_AI_CONVERSATION, MOCK_ACTIVITIES, MOCK_COMMUNITIES } from "@/data/mockData";
+import { MOCK_AI_CONVERSATION, MOCK_ACTIVITIES } from "@/data/mockData";
 import { AIMessage as AIMessageType } from "@/types";
 import { Bot, Sparkles, Zap } from "lucide-react";
 

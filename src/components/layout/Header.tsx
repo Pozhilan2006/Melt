@@ -23,14 +23,14 @@ export const Header: React.FC = () => {
   };
 
   const authedNavItems = [
-    { href: "/discover", label: "Discover", icon: Compass },
     { href: "/communities", label: "Communities", icon: Users },
-    { href: "/activities", label: "Activities", icon: Flame },
+    { href: "/activities", label: "Events", icon: Flame },
     { href: "/ai", label: "AI Match", icon: Bot, isNew: true },
   ];
 
   const publicNavItems = [
-    { href: "/discover", label: "Discover", icon: Compass },
+    { href: "/communities", label: "Communities", icon: Users },
+    { href: "/activities", label: "Events", icon: Flame },
   ];
 
   const navItems = isAuthenticated ? authedNavItems : publicNavItems;

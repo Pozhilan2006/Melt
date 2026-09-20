@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { Tabs } from "@/components/ui/Tabs";
 import { Tag } from "@/components/ui/Tag";
@@ -9,7 +9,8 @@ import { CommunityCard } from "@/components/product/CommunityCard";
 import { UserCard } from "@/components/product/UserCard";
 import { MapView } from "@/components/product/MapView";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { MOCK_ACTIVITIES, MOCK_COMMUNITIES, MOCK_USERS, MOCK_INTERESTS } from "@/data/mockData";
+import { MOCK_ACTIVITIES, MOCK_USERS, MOCK_INTERESTS } from "@/data/mockData";
+import { ApiCommunity, communitiesApi } from "@/lib/api";
 import { Compass, MapPin, Sliders, Layers, Map as MapIcon, ListFilter, Sparkles } from "lucide-react";
 
 export default function DiscoverPage() {
@@ -19,6 +20,11 @@ export default function DiscoverPage() {
   const [selectedRadius, setSelectedRadius] = useState(10);
   const [selectedInterest, setSelectedInterest] = useState("ALL");
   const [timeFilter, setTimeFilter] = useState("ALL");
+  const [communities, setCommunities] = useState<ApiCommunity[]>([]);
+
+  useEffect(() => {
+    communitiesApi.list().then(setCommunities).catch(() => setCommunities([]));
+  }, []);
 
   const exampleSearches = [
     "Find football players near me",
@@ -38,7 +44,7 @@ export default function DiscoverPage() {
     return matchesSearch && matchesRadius && matchesInterest;
   });
 
-  const filteredCommunities = MOCK_COMMUNITIES.filter((comm) => {
+  const filteredCommunities = communities.filter((comm) => {
     const matchesSearch =
       comm.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       comm.location.toLowerCase().includes(searchQuery.toLowerCase());
@@ -187,7 +193,7 @@ export default function DiscoverPage() {
       {viewMode === "map" ? (
         <MapView
           activities={filteredActivities}
-          communities={filteredCommunities}
+          communities={[]}
           selectedRadiusKm={selectedRadius}
         />
       ) : (

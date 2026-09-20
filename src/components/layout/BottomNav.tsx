@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Compass, Plus, Users, User, LogIn } from "lucide-react";
+import { Home, Compass, Plus, Users, User, LogIn, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -15,17 +15,18 @@ export const BottomNav: React.FC = () => {
   // Authenticated nav
   const authedLinks = [
     { href: "/", label: "Home", icon: Home },
-    { href: "/discover", label: "Discover", icon: Compass },
+    { href: "/communities", label: "Communities", icon: Users },
     { href: "/create", label: "Create", icon: Plus, isFab: true },
-    { href: "/communities", label: "Tribes", icon: Users },
+    { href: "/activities", label: "Events", icon: Flame },
     { href: "/profile", label: "Profile", icon: User },
   ];
 
   // Unauthenticated nav — replace Profile/Create with Login
   const publicLinks = [
     { href: "/", label: "Home", icon: Home },
-    { href: "/discover", label: "Discover", icon: Compass },
+    { href: "/communities", label: "Communities", icon: Users },
     { href: "/register", label: "Join", icon: Plus, isFab: true },
+    { href: "/activities", label: "Events", icon: Flame },
     { href: "/login", label: "Login", icon: LogIn },
   ];
 
